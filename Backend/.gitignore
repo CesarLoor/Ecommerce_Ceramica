@@ -1,21 +1,27 @@
-# Dependencies
+# ============================================================
+# .gitignore — Backend (Node.js / Express / Mongoose)
+# ============================================================
+
+# ── Dependencias ─────────────────────────────────────────────
 node_modules/
-package-lock.json
 
-# Testing & Coverage
-coverage/
-.coverage/
-*.lcov
-.nyc_output/
-
-# Environment Variables
+# ── Variables de entorno ──────────────────────────────────────
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
 
-# Logs
+# ── Cobertura de pruebas ──────────────────────────────────────
+coverage/
+.coverage/
+*.lcov
+.nyc_output/
+
+# ── Resultados de pruebas de carga k6 ────────────────────────
+k6/results/
+
+# ── Logs ──────────────────────────────────────────────────────
 logs/
 *.log
 npm-debug.log*
@@ -23,27 +29,28 @@ yarn-debug.log*
 yarn-error.log*
 lerna-debug.log*
 
-# Build Output
+# ── Build ─────────────────────────────────────────────────────
 dist/
 build/
 *.tsbuildinfo
 
-# IDE & Editors
+# ── Caché ─────────────────────────────────────────────────────
+.cache/
+.eslintcache
+
+# ── IDEs y editores ───────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
-.DS_Store
+.vscode-test/
 
-# OS Files
+# ── Sistema operativo ─────────────────────────────────────────
+.DS_Store
 Thumbs.db
 Desktop.ini
 
-# Temporary Files
+# ── Temporales ────────────────────────────────────────────────
 *.tmp
 *.temp
-.cache/
-
-# Debug
-.vscode-test/
