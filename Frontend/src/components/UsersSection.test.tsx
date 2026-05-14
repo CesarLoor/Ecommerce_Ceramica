@@ -35,10 +35,12 @@ describe('UsersSection Component', () => {
     render(<UsersSection />);
 
     await waitFor(() => {
+      // Los nombres se renderizan como texto completo en CardTitle
       expect(screen.getByText('John Doe')).toBeInTheDocument();
       expect(screen.getByText('Jane Doe')).toBeInTheDocument();
-      expect(screen.getByText('john@example.com')).toBeInTheDocument();
-      expect(screen.getByText('jane@example.com')).toBeInTheDocument();
+      // El email está dentro de "<div>Email: john@example.com</div>" - usar getAllByText con regex
+      expect(screen.getAllByText(/john@example\.com/).length).toBeGreaterThan(0);
+      expect(screen.getAllByText(/jane@example\.com/).length).toBeGreaterThan(0);
     });
   });
 
@@ -70,14 +72,16 @@ describe('UsersSection Component', () => {
     // Abrir formulario
     fireEvent.click(screen.getByText('Crear nuevo cliente'));
 
-    // Llenar formulario
+    // Llenar formulario — los placeholders deben coincidir exactamente con el componente
     fireEvent.change(screen.getByPlaceholderText('Nombre'), { target: { value: 'New' } });
     fireEvent.change(screen.getByPlaceholderText('Apellido'), { target: { value: 'User' } });
     fireEvent.change(screen.getByPlaceholderText('Email'), { target: { value: 'new@example.com' } });
     fireEvent.change(screen.getByPlaceholderText('Teléfono'), { target: { value: '123456789' } });
     fireEvent.change(screen.getByPlaceholderText('Contraseña'), { target: { value: 'password123' } });
-    fireEvent.change(screen.getByPlaceholderText('Dirección de facturación'), { target: { value: '123 St' } });
-    fireEvent.change(screen.getByPlaceholderText('Dirección de envío'), { target: { value: '123 St' } });
+    // El componente usa "Dirección Facturación" (sin "de")
+    fireEvent.change(screen.getByPlaceholderText('Dirección Facturación'), { target: { value: '123 St' } });
+    // El componente usa "Dirección Envío" (sin "de")
+    fireEvent.change(screen.getByPlaceholderText('Dirección Envío'), { target: { value: '123 St' } });
 
     fireEvent.click(screen.getByText('Registrar'));
 
@@ -116,7 +120,8 @@ describe('UsersSection Component', () => {
     
     // Actualizar los datos
     fireEvent.change(screen.getByDisplayValue('John'), { target: { value: 'John Updated' } });
-    fireEvent.click(screen.getByText('Actualizar'));
+    // El botón de submit del form de edición dice "Guardar cambios" en el componente
+    fireEvent.click(screen.getByText('Guardar cambios'));
 
     await waitFor(() => {
       expect(customerAPI.update).toHaveBeenCalled();
@@ -188,9 +193,8 @@ describe('UsersSection Component', () => {
     // Esperar a que se muestre el formulario de edición
     await screen.findByText('Editar Usuario');
 
-    // Encontrar el formulario y enviarlo directamente
-    const form = screen.getByRole('form');
-    fireEvent.submit(form);
+    // Enviar el formulario directamente usando el botón de submit
+    fireEvent.click(screen.getByText('Guardar cambios'));
 
     await waitFor(() => {
       expect(mockToast).toHaveBeenCalledWith(expect.objectContaining({
