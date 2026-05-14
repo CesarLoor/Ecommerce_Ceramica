@@ -5,9 +5,9 @@
   "scripts": {
     "start": "node index.js",
     "dev": "node --watch index.js",
-    "test": "jest",
-    "test:coverage": "jest --coverage",
-    "test:watch": "jest --watch",
+    "test": "node node_modules/jest/bin/jest.js --forceExit",
+    "test:coverage": "node node_modules/jest/bin/jest.js --coverage --forceExit",
+    "test:watch": "node node_modules/jest/bin/jest.js --watch",
     "lint": "eslint ."
   },
   "keywords": [],

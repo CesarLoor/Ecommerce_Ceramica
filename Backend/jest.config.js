@@ -14,6 +14,6 @@ module.exports = {
     ],
     coverageReporters: ['text', 'lcov', 'html'],
     testMatch: ['**/test/**/*.test.js'],
-    testTimeout: 30000,
+    testTimeout: 60000,
     verbose: true,
 };

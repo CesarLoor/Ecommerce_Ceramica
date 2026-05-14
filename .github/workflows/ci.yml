@@ -15,7 +15,6 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      MONGODB_URI: ${{ secrets.MONGODB_URI }}
       BASIC_USER: ${{ secrets.BASIC_USER }}
       BASIC_PASS: ${{ secrets.BASIC_PASS }}
 
