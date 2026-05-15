@@ -42,9 +42,10 @@ Plataforma de comercio electrónico para la tienda de cerámica artesanal **Barr
   - **Pagos:** Visualización del historial de transacciones procesadas.
 
 ###  Arquitectura y DevOps
-- **API RESTful** segura y documentada.
+- **API RESTful** segura, con políticas **CORS** estrictas y autenticación BasicAuth.
+- **Cliente HTTP Robusto:** Configuración centralizada en el frontend con Axios, interceptores globales de errores y reintentos automáticos (auto-retry).
 - **Pruebas integrales:** Unitarias (Vitest/Jest), Componentes (RTL) y Rendimiento (k6).
-- **Pipeline CI/CD** automatizado con GitHub Actions y despliegue continuo en Render.
+- **Pipeline CI/CD:** Optimizado con caché multinivel de dependencias (`npm cache`) en GitHub Actions, verificación de cobertura estricta y despliegue continuo automatizado.
 
 ---
 
@@ -108,8 +109,9 @@ Ecommerce_Ceramica/
 │       ├── components/     # Componentes reutilizables (shadcn/ui)
 │       ├── pages/          # Vistas / rutas
 │       ├── hooks/          # Custom hooks
-│       └── lib/            # Utilidades y configuración de axios
-│
+│       └── lib/            # Utilidades y lógica de red (axios.ts, api.ts, cart-sync.ts)
+│   ├── .env.example
+│   └── README.md           # Documentación específica del entorno SPA
 └── README.md
 ```
 

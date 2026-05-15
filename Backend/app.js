@@ -42,6 +42,7 @@ app.use(basicAuth); // ← BasicAuth SOLO se aplica después de esto
 app.use("/barroco/customers", require("./routes/customerRoutes"));
 app.use("/api/cart", require("./routes/shoppingCartRoutes"));
 app.use("/barroco/shoppingCart", require('./routes/shoppingCartRoutes'));
+app.use("/api/quality", require("./routes/quality.routes"));
 
 app.get("/", (req, res) => {
   res.send("API RESTful de Barroco funcionando correctamente");

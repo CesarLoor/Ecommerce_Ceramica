@@ -90,6 +90,41 @@ jobs:
           echo "Backend: https://barroco-api.onrender.com"
           echo "Frontend: https://barroco-app-dwrs.onrender.com"
 
+      - name: Fetch Quality Score Report
+        if: success()
+        run: |
+          echo "📊Consultando el Quality Scoring Engine..."
+          
+          # Consultar el endpoint usando BasicAuth y guardar la salida en quality-report.json
+          curl -s -u "${{ env.BASIC_USER }}:${{ env.BASIC_PASS }}" \
+            https://barroco-api.onrender.com/api/quality/score \
+            -o quality-report.json
+            
+          echo "✅ Reporte descargado. Resumen en consola:"
+          
+          # Usar Node.js para parsear el JSON, imprimir un resumen y formatearlo con indentación (pretty-print)
+          node -e "
+            const fs = require('fs');
+            try {
+              const report = JSON.parse(fs.readFileSync('quality-report.json', 'utf8'));
+              console.log('--------------------------------------------------');
+              console.log(report.message || 'Sin mensaje principal');
+              if (report.data) console.log('Score General: ' + report.data.overallScore + '/100');
+              console.log('--------------------------------------------------');
+              fs.writeFileSync('quality-report.json', JSON.stringify(report, null, 2));
+            } catch (err) {
+              console.error('Error al procesar el reporte JSON:', err.message);
+            }
+          "
+
+      - name: Upload Quality Report Artifact
+        uses: actions/upload-artifact@v4
+        if: success()
+        with:
+          name: quality-score-report
+          path: quality-report.json
+          retention-days: 30
+
       - name: Deployment Failed
         if: failure()
         run: |
