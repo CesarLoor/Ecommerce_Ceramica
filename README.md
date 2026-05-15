@@ -17,6 +17,7 @@
 - [🚀 Demo en Producción](#-demo-en-producción)
 - [📊 Calidad del Proyecto (Modelo de McCall)](#-calidad-del-proyecto-modelo-de-mccall)
 - [🔄 Metodología: PDCA + McCall](#-metodología-pdca--mccall)
+- [🏗️ Arquitectura del Proyecto](#️-arquitectura-del-proyecto)
 - [✨ Características](#-características)
 - [🛠️ Stack Tecnológico](#️-stack-tecnológico)
 - [📦 Instalación Local](#-instalación-local)
@@ -144,7 +145,87 @@ Push a main
 
 ---
 
-## ✨ Características
+## 🏗️ Arquitectura del Proyecto
+
+### Diagrama General
+
+```
+┌─────────────────────────────────────────────────────────────┐
+│                    🖥️ FRONTEND (Cliente)                      │
+│  React 18 + TypeScript + Vite + Tailwind + shadcn/ui        │
+│  - Catálogo 2,417 productos                                  │
+│  - Carrito sincronizado                                      │
+│  - Panel Admin CRUD                                          │
+└────────────────┬────────────────────────────────────────────┘
+                 │ HTTPS + BasicAuth
+                 ↓
+┌─────────────────────────────────────────────────────────────┐
+│          ⚙️ BACKEND (API REST)                                │
+│  Express 5 + Node.js 20 + Mongoose                          │
+│  ┌──────────────────────────────────────────────────────┐   │
+│  │ Routes → BasicAuth → Controllers → Services          │   │
+│  │                                                      │   │
+│  │ 🔍 QualityScoringEngine                             │   │
+│  │    (Calcula 88/100: Correctness, Testability, ...)  │   │
+│  └──────────────────────────────────────────────────────┘   │
+└────────────────┬────────────────────────────────────────────┘
+                 │ CRUD Operations
+                 ↓
+┌─────────────────────────────────────────────────────────────┐
+│           💾 BASE DE DATOS (MongoDB Atlas)                    │
+│  - users (2 registros)                                       │
+│  - products (2,417 items)                                    │
+│  - categories (3 categorías)                                 │
+│  - shopping_carts (sincronización)                           │
+└─────────────────────────────────────────────────────────────┘
+
+┌─────────────────────────────────────────────────────────────┐
+│     🔄 CI/CD (GitHub Actions → Render Hosting)              │
+│  ci.yml: Tests Backend + Frontend en cada push              │
+│  cd.yml: Deploy automático + Quality Report en main         │
+└─────────────────────────────────────────────────────────────┘
+```
+
+### Componentes Clave
+
+| Capa | Tecnología | Responsabilidad |
+|---|---|---|
+| **Frontend** | React + TS + Vite | UI, Rutas, Componentes reutilizables |
+| **Auth** | BasicAuth Middleware | Validación de credenciales en header |
+| **Controllers** | Express Routes | Manejo de endpoints HTTP |
+| **Services** | Business Logic | CRUD, validaciones, QualityScoringEngine |
+| **Models** | Mongoose Schemas | Validación de datos, índices BD |
+| **Database** | MongoDB Atlas | Persistencia de datos |
+| **Testing** | Jest + Vitest + k6 | Cobertura ≥70%, Pruebas de carga |
+| **DevOps** | GitHub Actions | Automatización CI/CD + Artifact |
+
+### Flujo de Datos Principal
+
+```
+1. Usuario interactúa con Frontend (React)
+   ↓
+2. Frontend envía HTTP request con BasicAuth (Axios)
+   ↓
+3. Backend valida autenticación (BasicAuth Middleware)
+   ↓
+4. Controller recibe request → invoca Service
+   ↓
+5. Service ejecuta lógica → valida con Mongoose Model
+   ↓
+6. Model realiza CRUD en MongoDB
+   ↓
+7. Respuesta viaja: MongoDB → Model → Service → Controller → Response JSON
+   ↓
+8. Frontend recibe JSON, actualiza estado, renderiza UI
+```
+
+**📖 Documentación Completa de Arquitectura**: Ver [ARCHITECTURE.md](./ARCHITECTURE.md)
+- Diagramas Mermaid detallados
+- Flujos CI/CD
+- Stack tecnológico
+- Matriz RACI del equipo
+
+---
 
 ## ✨ Características
 
@@ -418,11 +499,11 @@ Ecommerce_Ceramica/
 - ESPE (2026). "Guía de Proyecto Final - Aseguramiento de Calidad del Software". — Proyecto académico de evaluación del aseguramiento de calidad en full-stack applications.
 
 ### Documentación Técnica
-- [Node.js Documentation](https://nodejs.org/docs/)
 - [Express API Reference](https://expressjs.com/api.html)
 - [MongoDB Atlas Documentation](https://docs.mongodb.com/atlas/)
 - [React Documentation](https://react.dev/)
 - [GitHub Actions Documentation](https://docs.github.com/en/actions)
+- **[Arquitectura del Proyecto (ARCHITECTURE.md)](./ARCHITECTURE.md)** — Diagramas Mermaid, flujos, stack
 
 ---
 
