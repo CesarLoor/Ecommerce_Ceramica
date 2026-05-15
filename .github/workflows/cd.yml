@@ -10,6 +10,10 @@ jobs:
     runs-on: ubuntu-latest
     environment: production
     
+    env:
+      BASIC_USER: ${{ secrets.BASIC_USER }}
+      BASIC_PASS: ${{ secrets.BASIC_PASS }}
+    
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -29,7 +33,7 @@ jobs:
 
       - name: Backend - Run tests
         working-directory: ./Backend
-        run: npm test -- --forceExit
+        run: npm run test:coverage
 
       - name: Backend - Build
         working-directory: ./Backend
@@ -44,7 +48,7 @@ jobs:
 
       - name: Frontend - Run tests
         working-directory: ./Frontend
-        run: npm test -- --forceExit
+        run: npm run test:coverage
 
       - name: Frontend - Build
         working-directory: ./Frontend
