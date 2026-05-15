@@ -1,4 +1,3 @@
-# .github/workflows/cd.yml
 name: CD - Deploy to Render
 
 on:
@@ -22,26 +21,26 @@ jobs:
           cache: 'npm'
 
       # ─────────────────────────────────────────────────────
-      # BACKEND: Build & Test
+      # BACKEND: Install, Test, Build
       # ─────────────────────────────────────────────────────
       - name: Backend - Install dependencies
         working-directory: ./Backend
-        run: npm ci
+        run: npm install
 
       - name: Backend - Run tests
         working-directory: ./Backend
-        run: npm test -- --coverage --forceExit
+        run: npm test -- --forceExit
 
       - name: Backend - Build
         working-directory: ./Backend
         run: npm run build || echo "No build script found"
 
       # ─────────────────────────────────────────────────────
-      # FRONTEND: Build & Test
+      # FRONTEND: Install, Test, Build
       # ─────────────────────────────────────────────────────
       - name: Frontend - Install dependencies
         working-directory: ./Frontend
-        run: npm ci
+        run: npm install
 
       - name: Frontend - Run tests
         working-directory: ./Frontend
@@ -57,7 +56,7 @@ jobs:
       - name: Deploy Backend to Render
         if: success()
         run: |
-          echo "🚀 Deploying Backend to Render..."
+          echo " Triggering Backend Deploy..."
           curl -X POST "${{ secrets.RENDER_BACKEND_HOOK }}" \
             -H "Content-Type: application/json" \
             --max-time 300 \
@@ -70,7 +69,7 @@ jobs:
       - name: Deploy Frontend to Render
         if: success()
         run: |
-          echo "🎨 Deploying Frontend to Render..."
+          echo "🎨 Triggering Frontend Deploy..."
           curl -X POST "${{ secrets.RENDER_FRONTEND_HOOK }}" \
             -H "Content-Type: application/json" \
             --max-time 300 \
