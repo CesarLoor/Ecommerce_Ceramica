@@ -90,40 +90,121 @@ jobs:
           echo "Backend: https://barroco-api.onrender.com"
           echo "Frontend: https://barroco-app-dwrs.onrender.com"
 
-      - name: Fetch Quality Score Report
+      - name: Generate Quality Score Report
         if: success()
         run: |
-          echo "📊Consultando el Quality Scoring Engine..."
+          # ─────────────────────────────────────────────────────
+          # CONSTRUCCIÓN DEL HEADER AUTHORIZATION (CRÍTICO)
+          # ─────────────────────────────────────────────────────
+          # NO usar curl -u (problemas de interpolación en CI)
+          # SÍ usar construcción manual con base64
+          AUTH_HEADER="Authorization: Basic $(echo -n '${{ secrets.BASIC_USER }}:${{ secrets.BASIC_PASS }}' | base64)"
+          echo "🔐 Header Authorization construido correctamente"
           
-          # Consultar el endpoint usando BasicAuth y guardar la salida en quality-report.json
-          curl -s -u "${{ env.BASIC_USER }}:${{ env.BASIC_PASS }}" \
-            https://barroco-api.onrender.com/api/quality/score \
-            -o quality-report.json
+          # ─────────────────────────────────────────────────────
+          # CONSULTA AL ENDPOINT CON SEPARACIÓN HTTP
+          # ─────────────────────────────────────────────────────
+          echo "🌐 Consultando endpoint /api/quality/score..."
+          RESPONSE=$(curl -s -w "\n%{http_code}" \
+            -H "$AUTH_HEADER" \
+            -H "Accept: application/json" \
+            "https://barroco-api.onrender.com/api/quality/score")
+          
+          # Separar cuerpo de la respuesta y código HTTP
+          HTTP_CODE=$(echo "$RESPONSE" | tail -n1)
+          BODY=$(echo "$RESPONSE" | sed '$d')
+          
+          echo "📡 Código HTTP recibido: $HTTP_CODE"
+          
+          # ─────────────────────────────────────────────────────
+          # VALIDACIÓN DE RESPUESTA HTTP
+          # ─────────────────────────────────────────────────────
+          if [ "$HTTP_CODE" -eq 200 ]; then
+            echo "✅ Respuesta HTTP 200 OK"
             
-          echo "✅ Reporte descargado. Resumen en consola:"
-          
-          # Usar Node.js para parsear el JSON, imprimir un resumen y formatearlo con indentación (pretty-print)
-          node -e "
-            const fs = require('fs');
-            try {
-              const report = JSON.parse(fs.readFileSync('quality-report.json', 'utf8'));
-              console.log('--------------------------------------------------');
-              console.log(report.message || 'Sin mensaje principal');
-              if (report.data) console.log('Score General: ' + report.data.overallScore + '/100');
-              console.log('--------------------------------------------------');
-              fs.writeFileSync('quality-report.json', JSON.stringify(report, null, 2));
-            } catch (err) {
-              console.error('Error al procesar el reporte JSON:', err.message);
+            # ─────────────────────────────────────────────────────
+            # VALIDACIÓN DE FORMATO JSON
+            # ─────────────────────────────────────────────────────
+            if command -v jq >/dev/null 2>&1 && echo "$BODY" | jq . >/dev/null 2>&1; then
+              echo "✅ JSON válido recibido del Quality Scoring Engine"
+              
+              # Extraer métricas clave para logging
+              OVERALL_SCORE=$(echo "$BODY" | jq -r '.data.overallScore // "N/A"')
+              MESSAGE=$(echo "$BODY" | jq -r '.message // "Sin mensaje"')
+              CORRECTNESS=$(echo "$BODY" | jq -r '.data.breakdown.correctness.score // "N/A"')
+              TESTABILITY=$(echo "$BODY" | jq -r '.data.breakdown.testability.score // "N/A"')
+              MAINTAINABILITY=$(echo "$BODY" | jq -r '.data.breakdown.maintainability.score // "N/A"')
+              INTEGRITY=$(echo "$BODY" | jq -r '.data.breakdown.integrity.score // "N/A"')
+              
+              echo "📊 Quality Score Breakdown:"
+              echo "   • Overall: $OVERALL_SCORE/100"
+              echo "   • Correctness (30%): $CORRECTNESS"
+              echo "   • Testability (30%): $TESTABILITY"
+              echo "   • Maintainability (20%): $MAINTAINABILITY"
+              echo "   • Integrity (20%): $INTEGRITY"
+              echo "📝 Estado: $MESSAGE"
+              
+              # Guardar JSON formateado para artifact
+              echo "$BODY" | jq . > quality-score-report.json
+              
+            else
+              echo "⚠️ La respuesta no es JSON válido (posible error de autenticación)"
+              echo "🔍 Respuesta raw: $BODY"
+              
+              # Crear JSON de error válido para que el artifact nunca esté vacío
+              cat > quality-score-report.json << EOF
+          {
+            "success": false,
+            "error": "Respuesta no es JSON válido",
+            "http_code": $HTTP_CODE,
+            "raw_response": "$BODY",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "diagnostics": {
+              "auth_header_constructed": true,
+              "endpoint_reachable": true,
+              "possible_cause": "Error de autenticación o API devolviendo HTML en lugar de JSON"
             }
-          "
+          }
+          EOF
+            fi
+            
+          else
+            echo "❌ Error HTTP $HTTP_CODE - La API no respondió correctamente"
+            echo "🔍 Respuesta del servidor: $BODY"
+            
+            # Crear JSON de error con detalles para diagnóstico
+            cat > quality-score-report.json << EOF
+          {
+            "success": false,
+            "error": "Error HTTP $HTTP_CODE",
+            "http_code": $HTTP_CODE,
+            "response_body": "$BODY",
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "diagnostics": {
+              "auth_header_constructed": true,
+              "endpoint_called": "https://barroco-api.onrender.com/api/quality/score",
+              "possible_causes": [
+                "Credenciales incorrectas",
+                "API temporalmente fuera de servicio",
+                "Problemas de red en el runner de GitHub Actions"
+              ]
+            }
+          }
+          EOF
+          fi
+          
+          echo "✅ Quality Score Report generado exitosamente"
+          echo "📁 Archivo guardado: quality-score-report.json"
+        shell: bash
+        continue-on-error: true
 
-      - name: Upload Quality Report Artifact
+      - name: Upload Quality Report as Artifact
+        if: always()
         uses: actions/upload-artifact@v4
-        if: success()
         with:
-          name: quality-score-report
-          path: quality-report.json
-          retention-days: 30
+          name: quality-score-evidence
+          path: quality-score-report.json
+          retention-days: 90
 
       - name: Deployment Failed
         if: failure()
