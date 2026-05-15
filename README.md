@@ -1,5 +1,10 @@
 #  Ecommerce Cerámica — Barroco
 
+![Node.js](https://img.shields.io/badge/Node.js-20.x-339933?style=flat-square&logo=node.js&logoColor=white)
+![React](https://img.shields.io/badge/React-18.x-61DAFB?style=flat-square&logo=react&logoColor=black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=flat-square&logo=mongodb&logoColor=white)
+
 Plataforma de comercio electrónico para la tienda de cerámica artesanal **Barroco**. Construida con una arquitectura full-stack moderna: API REST con Node.js/Express en el backend y una SPA con React/TypeScript/Vite en el frontend.
 
 ---
@@ -21,14 +26,25 @@ Plataforma de comercio electrónico para la tienda de cerámica artesanal **Barr
 
 ##  Características
 
-- Catálogo de productos de cerámica artesanal
-- Gestión de productos y órdenes
-- Autenticación con HTTP Basic Auth
-- API RESTful documentada
-- Pruebas unitarias e integración con cobertura
-- Pruebas de carga, estrés y spike con k6
-- Pipeline CI/CD automatizado con GitHub Actions
-- Despliegue continuo en Render
+###  Para Clientes
+- **Catálogo interactivo:** Búsqueda en tiempo real, filtrado por categorías y ordenamiento por precio o nombre.
+- **Carrito de compras inteligente:** Sincronización en tiempo real con el servidor, cálculo automático de impuestos y envíos gratuitos por umbral de compra.
+- **Favoritos (Wishlist):** Guardado de piezas que más te gustan.
+- **Checkout simulado:** Flujo de validación de direcciones de envío/facturación y pasarela de pago visual.
+- **Perfil de usuario:** Gestión de datos personales e historial.
+
+###  Para Administradores
+- **Panel de Control (CRUD):** 
+  - **Usuarios:** Creación, edición, eliminación y gestión de roles.
+  - **Catálogo:** Registro de nuevos productos de cerámica, subida de imágenes y descripciones.
+  - **Stock:** Actualización rápida de inventario.
+  - **Pedidos:** Visualización y modificación del estado de entrega de las órdenes.
+  - **Pagos:** Visualización del historial de transacciones procesadas.
+
+###  Arquitectura y DevOps
+- **API RESTful** segura y documentada.
+- **Pruebas integrales:** Unitarias (Vitest/Jest), Componentes (RTL) y Rendimiento (k6).
+- **Pipeline CI/CD** automatizado con GitHub Actions y despliegue continuo en Render.
 
 ---
 
@@ -156,7 +172,7 @@ VITE_API_USER=<usuario_api>
 VITE_API_PASS=<contraseña_api>
 ```
 
-> ⚠️ **Nunca subas los archivos `.env` al repositorio.** Están incluidos en `.gitignore`.
+>  **Nunca subir los archivos `.env` al repositorio.** Están incluidos en `.gitignore`.
 
 ---
 
