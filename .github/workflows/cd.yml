@@ -94,20 +94,35 @@ jobs:
         if: success()
         run: |
           # ─────────────────────────────────────────────────────
+          # DEBUGGING: Verificar que los secrets están disponibles
+          # ─────────────────────────────────────────────────────
+          if [ -z "${{ secrets.BASIC_USER }}" ] || [ -z "${{ secrets.BASIC_PASS }}" ]; then
+            echo "❌ ERROR: Los secrets BASIC_USER o BASIC_PASS no están configurados"
+            echo "⚠️ Revisa: Settings → Secrets and variables → Actions"
+            exit 1
+          fi
+          echo "✅ Secrets BASIC_USER y BASIC_PASS detectados"
+          
+          # ─────────────────────────────────────────────────────
           # CONSTRUCCIÓN DEL HEADER AUTHORIZATION (CRÍTICO)
           # ─────────────────────────────────────────────────────
-          # NO usar curl -u (problemas de interpolación en CI)
-          # SÍ usar construcción manual con base64
-          AUTH_HEADER="Authorization: Basic $(echo -n '${{ secrets.BASIC_USER }}:${{ secrets.BASIC_PASS }}' | base64)"
-          echo "🔐 Header Authorization construido correctamente"
+          # Construir credencial en base64
+          CREDENTIALS_B64=$(echo -n '${{ secrets.BASIC_USER }}:${{ secrets.BASIC_PASS }}' | base64 -w 0)
+          AUTH_HEADER="Authorization: Basic $CREDENTIALS_B64"
+          
+          echo "🔐 Header Authorization construido"
+          echo "   Formato: Authorization: Basic [base64 encoded credentials]"
+          echo "   Base64 length: ${#CREDENTIALS_B64} characters"
           
           # ─────────────────────────────────────────────────────
           # CONSULTA AL ENDPOINT CON SEPARACIÓN HTTP
           # ─────────────────────────────────────────────────────
           echo "🌐 Consultando endpoint /api/quality/score..."
+          
           RESPONSE=$(curl -s -w "\n%{http_code}" \
             -H "$AUTH_HEADER" \
             -H "Accept: application/json" \
+            -H "User-Agent: GitHub-Actions-CD-Pipeline" \
             "https://barroco-api.onrender.com/api/quality/score")
           
           # Separar cuerpo de la respuesta y código HTTP
@@ -172,6 +187,28 @@ jobs:
             echo "❌ Error HTTP $HTTP_CODE - La API no respondió correctamente"
             echo "🔍 Respuesta del servidor: $BODY"
             
+            # Análisis específico para error 401
+            if [ "$HTTP_CODE" -eq 401 ]; then
+              echo ""
+              echo "🔴 DIAGNÓSTICO ERROR 401 (AUTENTICACIÓN FALLIDA):"
+              echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+              echo "Causas posibles:"
+              echo "1. ❓ BASIC_USER o BASIC_PASS incorrectos en GitHub Secrets"
+              echo "2. ❓ Credenciales no sincronizadas con el backend"
+              echo "3. ❓ Problema en codificación base64"
+              echo "4. ❓ Middleware BasicAuth del backend requiere cambios"
+              echo ""
+              echo "✅ ACCIONES A VERIFICAR:"
+              echo "   • Ir a: Settings → Secrets and variables → Actions"
+              echo "   • Verificar que BASIC_USER = 'frozono'"
+              echo "   • Verificar que BASIC_PASS = 'trabatrix2'"
+              echo "   • Si están correctos, hacer UPDATE: eliminar y recrear"
+              echo ""
+              echo "🧪 PRUEBA LOCAL (en tu PC):"
+              echo "   curl -u frozono:trabatrix2 https://barroco-api.onrender.com/api/quality/score"
+              echo ""
+            fi
+            
             # Crear JSON de error con detalles para diagnóstico
             cat > quality-score-report.json << EOF
           {
@@ -183,11 +220,9 @@ jobs:
             "diagnostics": {
               "auth_header_constructed": true,
               "endpoint_called": "https://barroco-api.onrender.com/api/quality/score",
-              "possible_causes": [
-                "Credenciales incorrectas",
-                "API temporalmente fuera de servicio",
-                "Problemas de red en el runner de GitHub Actions"
-              ]
+              "status": "$HTTP_CODE",
+              "error_type": $([ "$HTTP_CODE" -eq 401 ] && echo '"Authentication Failed"' || echo '"Unknown Error"'),
+              "check_github_secrets": "Settings → Secrets and variables → Actions"
             }
           }
           EOF
