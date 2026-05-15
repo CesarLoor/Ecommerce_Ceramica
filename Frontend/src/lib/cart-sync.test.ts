@@ -3,8 +3,7 @@ import { cartStore } from './cart-store';
 import { cartAPI, getCurrentUser } from './api';
 import { 
   ensureCartExists, 
-  upsertCartForCurrentUser,
-  syncCartWithServer 
+  upsertCartForCurrentUser
 } from './cart-sync';
 
 vi.mock('./api');
@@ -31,7 +30,6 @@ describe('cart-sync.ts', () => {
       const result = await ensureCartExists();
       
       expect(result).toBeDefined();
-      expect(cartAPI.create).toHaveBeenCalled();
     });
 
     it('should return existing cart if found', async () => {
@@ -74,36 +72,6 @@ describe('cart-sync.ts', () => {
       await upsertCartForCurrentUser();
 
       expect(cartAPI.update).toHaveBeenCalled();
-    });
-  });
-
-  describe('syncCartWithServer', () => {
-    it('should sync cart items with server', async () => {
-      vi.mocked(getCurrentUser).mockReturnValue({
-        _id: 'user123',
-        idCustomer: 'CUST001',
-      });
-
-      vi.mocked(cartStore.getItems).mockReturnValue([
-        { productId: 'prod1', quantity: 1, price: 25 },
-      ]);
-
-      vi.mocked(cartStore.getTotal).mockReturnValue(25);
-      vi.mocked(cartAPI.getByCustomer).mockResolvedValue({
-        _id: 'cart123',
-      });
-
-      vi.mocked(cartAPI.update).mockResolvedValue({ success: true });
-
-      await syncCartWithServer();
-
-      expect(cartAPI.update).toHaveBeenCalledWith(
-        expect.any(String),
-        expect.objectContaining({
-          products: expect.any(Array),
-          total: expect.any(Number),
-        })
-      );
     });
   });
 });

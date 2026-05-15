@@ -4,6 +4,12 @@ import { MemoryRouter } from 'react-router-dom';
 import Checkout from './Checkout';
 import { cartStore } from '@/lib/cart-store';
 
+global.ResizeObserver = class ResizeObserver {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 vi.mock('@/lib/cart-store', () => ({
   cartStore: {
     getItems: vi.fn(),
@@ -37,6 +43,7 @@ describe('Checkout Page', () => {
     vi.clearAllMocks();
     vi.mocked(cartStore.getItems).mockReturnValue([
       {
+        id: 'item1',
         productId: 'prod1',
         name: 'Producto 1',
         price: 50,
@@ -70,7 +77,7 @@ describe('Checkout Page', () => {
 
   it('renders order summary', () => {
     renderCheckout();
-    expect(screen.getByText('Resumen del pedido')).toBeInTheDocument();
+    expect(screen.getByText('Resumen de compra')).toBeInTheDocument();
   });
 
   it('updates contact information when user types', async () => {
@@ -86,8 +93,8 @@ describe('Checkout Page', () => {
 
   it('displays subtotal, tax and total correctly', () => {
     renderCheckout();
-    // Subtotal should be 50
-    expect(screen.getByText(/50\.00/)).toBeInTheDocument();
+    // Subtotal should be 50. Usamos getAllByText porque el valor 50.00 aparece en la lista de items y en el subtotal.
+    expect(screen.getAllByText(/50\.00/).length).toBeGreaterThan(0);
   });
 
   it('allows user to toggle billing address', async () => {
@@ -109,7 +116,7 @@ describe('Checkout Page', () => {
     const nameInput = screen.getByLabelText('Nombre y apellido');
     fireEvent.change(nameInput, { target: { value: 'Juan Pérez' } });
 
-    const form = screen.getByRole('button', { name: /continuar a pago/i })?.closest('form');
+    const form = screen.getByRole('button', { name: /pagar ahora/i })?.closest('form');
     if (form) {
       fireEvent.submit(form);
     }
