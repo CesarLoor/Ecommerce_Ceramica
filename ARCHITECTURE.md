@@ -449,31 +449,60 @@ graph LR
 
 ## URLs y Endpoints Clave
 
-```mermaid
-graph TB
-    Client["Cliente<br/>navegador"]
-    
-    subgraph API_Routes["🔐 Rutas Protegidas (BasicAuth)"]
-        Users["GET/POST /api/users<br/>PUT /api/users/:id<br/>DELETE /api/users/:id"]
-        Products["GET/POST /api/products<br/>PUT /api/products/:id"]
-        Categories["GET/POST /api/categories"]
-        Carts["GET/POST /api/shopping-carts<br/>PUT /api/shopping-carts/:id"]
-        Quality["GET /api/quality/score<br/>🌟 Endpoint principal"]
-    end
+### Tabla de Endpoints
 
-    Client -->|HTTPS + BasicAuth| Users
-    Client -->|HTTPS + BasicAuth| Products
-    Client -->|HTTPS + BasicAuth| Categories
-    Client -->|HTTPS + BasicAuth| Carts
-    Client -->|HTTPS + BasicAuth| Quality
+| Endpoint | Método | Descripción | Autenticación |
+|---|---|---|---|
+| `/api/users` | GET, POST | Listar/crear usuarios | BasicAuth ✅ |
+| `/api/users/:id` | PUT, DELETE | Actualizar/eliminar usuario | BasicAuth ✅ |
+| `/api/products` | GET, POST | Listar/crear productos | BasicAuth ✅ |
+| `/api/products/:id` | PUT, DELETE | Actualizar/eliminar producto | BasicAuth ✅ |
+| `/api/categories` | GET, POST | Listar/crear categorías | BasicAuth ✅ |
+| `/api/shopping-carts` | GET, POST | Listar/crear carritos | BasicAuth ✅ |
+| `/api/shopping-carts/:id` | PUT, DELETE | Actualizar/eliminar carrito | BasicAuth ✅ |
+| **`/api/quality/score`** | **GET** | **🌟 Quality Score (88/100)** | **BasicAuth ✅** |
 
-    Users -->|respuesta JSON| Client
-    Products -->|respuesta JSON| Client
-    Categories -->|respuesta JSON| Client
-    Carts -->|respuesta JSON| Client
-    Quality -->|{"overallScore": 88, ...}| Client
+### Ejemplo de Consulta
 
-    style API_Routes fill:#fff9c4
+```bash
+# Consultar Quality Score
+curl -u frozono:trabatrix2 https://barroco-api.onrender.com/api/quality/score
+
+# Respuesta esperada
+{
+  "success": true,
+  "data": {
+    "overallScore": 88,
+    "breakdown": {
+      "correctness": {"score": 90, "weight": 0.3, "contribution": 27},
+      "testability": {"score": 82, "weight": 0.3, "contribution": 24.6},
+      "maintainability": {"score": 84, "weight": 0.2, "contribution": 16.8},
+      "integrity": {"score": 100, "weight": 0.2, "contribution": 20}
+    }
+  },
+  "message": "🟢 Calidad del proyecto: BUENO"
+}
+```
+
+### Flujo de Autenticación
+
+```
+Cliente (Frontend)
+  ↓
+Construye header: Authorization: Basic base64(frozono:trabatrix2)
+  ↓
+Envía HTTP request: GET /api/quality/score
+  ↓
+Express Server recibe
+  ↓
+BasicAuth Middleware valida credenciales
+  ↓
+✅ Credenciales OK → Controller procesa
+❌ Credenciales inválidas → Respuesta 401 Unauthorized
+  ↓
+QualityController ejecuta cálculo
+  ↓
+Retorna JSON: {success: true, data: {...}, message: "..."}
 ```
 
 ---
