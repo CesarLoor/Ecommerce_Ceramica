@@ -33,6 +33,8 @@ describe('AddToCartSection', () => {
   test('debe renderizar el título de la sección', async () => {
     render(<AddToCartSection />);
     expect(screen.getByText(/Agregar Productos al Carrito/i)).toBeInTheDocument();
+    // Esperar a que los productos se rendericen para evitar advertencias de "act"
+    await screen.findByText('Producto 1');
   });
 
   test('debe mostrar la lista de productos', async () => {

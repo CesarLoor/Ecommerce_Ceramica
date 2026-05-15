@@ -145,8 +145,8 @@ export default function UsersSection() {
           <Input placeholder="Email" className="mb-2" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} />
           <Input placeholder="Teléfono" className="mb-2" value={form.phone} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
           <Input placeholder="Contraseña" type="password" className="mb-2" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} />
-          <Input placeholder="Dirección Facturación" className="mb-2" value={form.billingAddress} onChange={(e) => setForm({ ...form, billingAddress: e.target.value })} />
-          <Input placeholder="Dirección Envío" className="mb-2" value={form.shippingAddress} onChange={(e) => setForm({ ...form, shippingAddress: e.target.value })} />
+          <Input placeholder="Dirección de facturación" className="mb-2" value={form.billingAddress} onChange={(e) => setForm({ ...form, billingAddress: e.target.value })} />
+          <Input placeholder="Dirección de envío" className="mb-2" value={form.shippingAddress} onChange={(e) => setForm({ ...form, shippingAddress: e.target.value })} />
           <Input placeholder="ID Cliente" className="mb-2" value={form.idCustomer} onChange={(e) => setForm({ ...form, idCustomer: e.target.value })} />
           <Button type="submit">Registrar</Button>
         </form>
@@ -160,8 +160,8 @@ export default function UsersSection() {
           <Input placeholder="Email" className="mb-2" value={editForm.email} onChange={(e) => setEditForm({ ...editForm, email: e.target.value })} />
           <Input placeholder="Teléfono" className="mb-2" value={editForm.phone} onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })} />
           <Input placeholder="Contraseña (vacío = no cambia)" type="password" className="mb-2" value={editForm.password} onChange={(e) => setEditForm({ ...editForm, password: e.target.value })} />
-          <Input placeholder="Dirección Facturación" className="mb-2" value={editForm.billingAddress} onChange={(e) => setEditForm({ ...editForm, billingAddress: e.target.value })} />
-          <Input placeholder="Dirección Envío" className="mb-2" value={editForm.shippingAddress} onChange={(e) => setEditForm({ ...editForm, shippingAddress: e.target.value })} />
+          <Input placeholder="Dirección de facturación" className="mb-2" value={editForm.billingAddress} onChange={(e) => setEditForm({ ...editForm, billingAddress: e.target.value })} />
+          <Input placeholder="Dirección de envío" className="mb-2" value={editForm.shippingAddress} onChange={(e) => setEditForm({ ...editForm, shippingAddress: e.target.value })} />
           <Input placeholder="ID Cliente" className="mb-2" value={editForm.idCustomer} onChange={(e) => setEditForm({ ...editForm, idCustomer: e.target.value })} />
           <Input placeholder="Rol" className="mb-2" value={editForm.role} onChange={(e) => setEditForm({ ...editForm, role: e.target.value })} />
           <Button type="submit">Guardar cambios</Button>

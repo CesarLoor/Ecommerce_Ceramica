@@ -22,6 +22,8 @@ describe('CatalogSection', () => {
   test('debe renderizar el título del catálogo', async () => {
     render(<CatalogSection />);
     expect(screen.getByText(/Catálogo de Productos/i)).toBeInTheDocument();
+    // Esperar a que los productos se rendericen para evitar advertencias de "act"
+    await screen.findByText('Laptop');
   });
 
   test('debe mostrar los nombres de los productos', async () => {

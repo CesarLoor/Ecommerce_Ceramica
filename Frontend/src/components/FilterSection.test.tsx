@@ -23,11 +23,13 @@ describe('FilterSection', () => {
   test('debe renderizar el input de búsqueda', async () => {
     render(<FilterSection />);
     expect(screen.getByPlaceholderText(/Buscar por nombre.../i)).toBeInTheDocument();
+    // Esperar a que los productos se rendericen para evitar advertencias de "act"
+    await screen.findByText('Apple iPhone');
   });
 
   test('debe mostrar todos los productos inicialmente', async () => {
     render(<FilterSection />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Apple iPhone')).toBeInTheDocument();
       expect(screen.getByText('Samsung Galaxy')).toBeInTheDocument();
@@ -37,9 +39,9 @@ describe('FilterSection', () => {
 
   test('debe filtrar productos al escribir en el input', async () => {
     render(<FilterSection />);
-    
+
     await waitFor(() => screen.getByText('Apple iPhone'));
-    
+
     const input = screen.getByPlaceholderText(/Buscar por nombre.../i);
     fireEvent.change(input, { target: { value: 'Samsung' } });
 
@@ -50,9 +52,9 @@ describe('FilterSection', () => {
 
   test('debe filtrar sin importar mayúsculas/minúsculas', async () => {
     render(<FilterSection />);
-    
+
     await waitFor(() => screen.getByText('Apple iPhone'));
-    
+
     const input = screen.getByPlaceholderText(/Buscar por nombre.../i);
     fireEvent.change(input, { target: { value: 'sony' } });
 
@@ -61,9 +63,9 @@ describe('FilterSection', () => {
 
   test('debe mostrar mensaje vacío si no hay coincidencias', async () => {
     render(<FilterSection />);
-    
+
     await waitFor(() => screen.getByText('Apple iPhone'));
-    
+
     const input = screen.getByPlaceholderText(/Buscar por nombre.../i);
     fireEvent.change(input, { target: { value: 'xyz' } });
 

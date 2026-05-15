@@ -22,11 +22,13 @@ describe('PaymentSection', () => {
   test('debe renderizar el título de pagos', async () => {
     render(<PaymentSection />);
     expect(screen.getByText('Pagos')).toBeInTheDocument();
+    // Esperar a que los pagos se rendericen para evitar advertencias de "act"
+    await screen.findByText('Pago #1');
   });
 
   test('debe mostrar la lista de pagos', async () => {
     render(<PaymentSection />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Pago #1')).toBeInTheDocument();
       expect(screen.getByText('Pago #2')).toBeInTheDocument();
@@ -35,7 +37,7 @@ describe('PaymentSection', () => {
 
   test('debe mostrar el monto de los pagos', async () => {
     render(<PaymentSection />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Monto: $500')).toBeInTheDocument();
       expect(screen.getByText('Monto: $150')).toBeInTheDocument();
@@ -44,7 +46,7 @@ describe('PaymentSection', () => {
 
   test('debe mostrar el estado de los pagos', async () => {
     render(<PaymentSection />);
-    
+
     await waitFor(() => {
       expect(screen.getByText('Estado: Completed')).toBeInTheDocument();
       expect(screen.getByText('Estado: Pending')).toBeInTheDocument();
@@ -54,7 +56,7 @@ describe('PaymentSection', () => {
   test('debe manejar lista vacía de pagos', async () => {
     (paymentAPI.getAll as Mock).mockResolvedValue([]);
     render(<PaymentSection />);
-    
+
     await waitFor(() => {
       expect(screen.queryByText('Monto:')).not.toBeInTheDocument();
     });
