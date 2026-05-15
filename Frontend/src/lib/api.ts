@@ -1,15 +1,17 @@
 import bcrypt from 'bcryptjs';
 
-const BASE_URL = import.meta.env.VITE_API_URL || 'https://pruebasproyectou1.onrender.com/barroco';
+// 🔧 CORRECCIÓN: Asegurar que BASE_URL siempre termine con /barroco
+const baseUrl = import.meta.env.VITE_API_URL || 'https://barroco-api.onrender.com';
+const BASE_URL = baseUrl.endsWith('/barroco') ? baseUrl : `${baseUrl}/barroco`;
 
 async function api<T>(endpoint: string, options?: RequestInit): Promise<T> {
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
+  // Limpiar endpoint para evitar doble slash
+  const cleanEndpoint = endpoint.startsWith('/') ? endpoint : `/${endpoint}`;
+  
+  const response = await fetch(`${BASE_URL}${cleanEndpoint}`, {
     headers: {
       'Content-Type': 'application/json',
-      'Authorization':     "Basic " +
-    btoa(
-      `${import.meta.env.VITE_API_USER}:${import.meta.env.VITE_API_PASS}`
-    ),
+      'Authorization': "Basic " + btoa(`${import.meta.env.VITE_API_USER}:${import.meta.env.VITE_API_PASS}`),
       ...options?.headers,
     },
     ...options,
@@ -76,7 +78,6 @@ export const cartAPI = {
   delete: (id: string) => api(`/shoppingCart/${id}`, { method: 'DELETE' }),
   getByCustomer: (customerId: string) => api(`/shoppingCart/customer/${customerId}`),
 };
-
 
 export const categoryAPI = {
   create: (data: any) => api('/categories', { method: 'POST', body: JSON.stringify(data) }),
